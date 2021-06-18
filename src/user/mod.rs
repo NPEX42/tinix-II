@@ -1,5 +1,7 @@
 pub mod graphics;
 pub mod math;
+pub mod time;
+pub mod input;
 
 pub struct Arguments {
     parent : &'static str

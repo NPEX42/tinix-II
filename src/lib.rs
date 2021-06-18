@@ -8,6 +8,7 @@
 
 
 use core::panic::PanicInfo;
+use x86_64::instructions::interrupts::without_interrupts;
 
 mod kernel;
 pub mod user;
@@ -17,9 +18,13 @@ pub mod std;
 /// Define Our own panic Handler
 #[panic_handler]
 fn on_panic(_info : &PanicInfo) -> ! {
-    user::graphics::clear_screen(user::graphics::Color::Red);
-    println!("== PANIC == [ {} ]", _info);
-    loop {}
+    without_interrupts(|| {
+        user::graphics::clear_screen(user::graphics::Color::Red);
+        println!("== PANIC ==\n [ {} ]", _info);
+
+        serial_print!("{}", _info);
+    });
+    loop {user::time::sleep_ticks(1000)}
 }
 
 /// Define an entry Point that

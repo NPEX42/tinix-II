@@ -9,6 +9,7 @@ pub use crate::kernel::drivers::vga::libs::draw as draw;
 pub use crate::kernel::drivers::vga::libs::draw_str as draw_str;
 pub use crate::kernel::drivers::vga::libs::draw_chr as draw_chr;
 pub use crate::kernel::drivers::vga::libs::clear_screen as clear_screen;
+use x86_64::instructions::interrupts::without_interrupts;
 
 
 pub use core::fmt::*;
@@ -135,9 +136,25 @@ macro_rules! print {
     ($($arg:tt)*) => { $crate::user::graphics::_print(format_args!($($arg)*)) }
 }
 
+#[macro_export]
+macro_rules! draw_string_f {
+    ($x:expr, $y:expr,$c : expr, $($arg:tt)*) => { 
+        $crate::user::graphics::_draw_string_f($x, $y, $c, format_args!($($arg)*))
+    }
+}
+
 #[doc(hidden)]
 pub fn _print(args: Arguments) {
-    WRITER.lock().write_fmt(args).unwrap();
+    without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();
+    });
+}
+
+#[doc(hidden)]
+pub fn _draw_string_f(x : usize, y : usize, color : Color, args : Arguments) {
+    without_interrupts(|| {
+        VgaWriter::new(x,y,color).write_fmt(args);
+    });
 }
 
 pub struct VgaWriter {

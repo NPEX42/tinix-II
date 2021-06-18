@@ -1,5 +1,6 @@
 pub mod pic;
 pub mod pit;
+pub mod uart;
 pub mod vga;
 
 
