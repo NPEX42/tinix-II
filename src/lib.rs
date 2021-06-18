@@ -4,18 +4,27 @@
 #![allow(deprecated)]
 #![feature(alloc_error_handler)] 
 
+#[warn(missing_docs)]
+
+
 use core::panic::PanicInfo;
 
-pub mod kernel;
+mod kernel;
 pub mod user;
 pub mod std;
 
 
+/// Define Our own panic Handler
 #[panic_handler]
 fn on_panic(_info : &PanicInfo) -> ! {
+    user::graphics::clear_screen(user::graphics::Color::Red);
+    println!("== PANIC == [ {} ]", _info);
     loop {}
 }
 
+/// Define an entry Point that
+/// A) Boots the system
+/// B) Calls the given function
 pub macro entry_point($path : path) {
 
     bootloader::entry_point!(tinix_start);
@@ -26,7 +35,7 @@ pub macro entry_point($path : path) {
         $crate::kernel::boot(boot_info);
 
         main(&$crate::user::Arguments::empty());
-
+        
         loop {}
     }
 }

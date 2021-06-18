@@ -3,7 +3,9 @@ use bit_field::BitField;
 
 pub use crate::kernel::hardware::*;
 
+#[derive(Debug, Clone)]
 pub struct VgaController {
+    pub index_reset     : PortRO<u8>,   //3DA
     pub index_reg       : PortRW<u8>,   //3C0
     pub outputr         : PortRO<u8>,   //3C2
     pub outputw         : PortWO<u8>,   //3CC
@@ -24,6 +26,7 @@ pub struct VgaController {
 impl VgaController {
     pub fn new() -> Self {
         Self {
+            index_reset         : PortRO::new(0x3DA),
             index_reg           : PortRW::new(0x3C0),
             outputr             : PortRO::new(0x3C2),
             outputw             : PortWO::new(0x3CC),
@@ -42,6 +45,7 @@ impl VgaController {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct CrtController {
     pub horizontal_total    : CrtRegister,
     pub end_horizontal_disp : CrtRegister,
@@ -62,6 +66,7 @@ pub struct CrtController {
     pub misc_output         : PortRW<u8>,
     pub clocking_mode       : PortRW<u8>
 }
+
 
 impl CrtController {
     pub fn new() -> Self {
@@ -89,6 +94,7 @@ impl CrtController {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct CrtRegister {
     port    : PortRW<u8>,
     index   : u8

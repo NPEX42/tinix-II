@@ -12,5 +12,15 @@ path = "src/lib.rs"
 bootloader = {version = "0.9.8", features = ["map_physical_memory"]}
 x86_64 = "0.14.3"
 bit_field = "0.10.1"
-spin = {version = "0.9.0", default-features = false}
+spin = {version = "0.9.0"}
 volatile = "*"
+vga = "0.2.7"
+
+
+[dependencies.lazy_static]
+version = "*"
+features = ["spin_no_std"]
+
+[features]
+libcore = ["liballoc"]
+liballoc = []
