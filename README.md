@@ -1,6 +1,17 @@
 # tinix-II
 ----
 ## Overview
+### In Progress
+- [x] - VGA Graphics
+- [ ] - RAM File System
+- [ ] - Memory Alloctator
+- [ ] - Keyboard Input
+- [ ] - Shell
+- [ ] - Basic ELF64 Loader
+- [ ] - RealTime Clock
+- [x] - PIT
+- [ ] - Software Interrupts
+- [ ] - Triple Fault Protection 
 ----
 ## Target Machine
 - Arch: x86_64
