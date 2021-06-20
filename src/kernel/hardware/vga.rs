@@ -111,14 +111,14 @@ impl CrtRegister {
     pub fn read(&mut self) -> u8 {
         unsafe {
             self.port.write(self.index);
-            self.read()
+            self.port.read()
         }
     }
 
     pub fn write(&mut self, data : u8) {
         unsafe {
             self.port.write(self.index);
-            self.write(data);
+            self.port.write(data);
         }
     }
 

@@ -17,5 +17,5 @@ pub fn read_u8() -> u8 {
 }
 
 pub fn write_str(args : Arguments) {
-    SERIAL.lock().write_fmt(args);
+    SERIAL.lock().write_fmt(args).expect("| ERR | Unable To Write To Serial...");
 }

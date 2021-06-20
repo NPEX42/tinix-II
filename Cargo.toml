@@ -26,3 +26,10 @@ features = ["spin_no_std"]
 [features]
 libcore = ["liballoc"]
 liballoc = []
+
+[package.metadata.bootimage]
+run-args = ["-d", "cpu_reset"]
+
+test-args = [
+    "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio", "-display", "none"
+]

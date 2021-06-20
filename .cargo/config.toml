@@ -10,9 +10,3 @@ runner = "bootimage runner"
 target = "x86_64.json"
 
 
-[package.metadata.bootimage]
-run-args = ["-device", "-serial", "stdio", "-drive format=file,media=hdd,file=tinix_v.img"]
-
-test-args = [
-    "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio", "-display", "none"
-]
