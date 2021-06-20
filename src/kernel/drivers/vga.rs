@@ -5,12 +5,32 @@ use crate::kernel::hardware::*;
 
 
 pub mod libs {
+    use crate::kernel::hardware::vga as vga_hw;
+
+    /// IN-TESTING, MAY HAVE UNDEFINED BEHAVIOUR
+    pub fn vsync_wait() {
+        let mut card = vga::vga::VGA.lock();
+        let mode = card.get_emulation_mode();
+
+    
+        while card.crtc_controller_registers.read(mode, vga::registers::CrtcControllerIndex::LineCompare) > 0  {
+            crate::serial_print!("{}",card.crtc_controller_registers.read(mode, vga::registers::CrtcControllerIndex::LineCompare));
+        }
+
+        while card.crtc_controller_registers.read(mode, vga::registers::CrtcControllerIndex::VerticalSyncEnd) == 0 {
+            
+        }
+
+    }
+
     use lazy_static::lazy_static;
     use spin::*;
 
     pub use vga::colors::Color16;
+    use vga::vga::Vga;
     pub use vga::writers::{Graphics640x480x16, GraphicsWriter};
     pub use vga::fonts;
+    use x86_64::instructions::port::Port;
 
     lazy_static! {
         static ref GFX_MODE : Mutex<Graphics640x480x16> = Mutex::new(
