@@ -9,9 +9,12 @@ pub fn serial_write(byte : u8){
     crate::kernel::hardware::uart::write_u8(byte);
 }
 
-#[macro_export]
-macro_rules! serial_print {
-    ($($arg:tt)*) => { $crate::user::input::_print(format_args!($($arg)*)) };
+pub macro serial_print {
+    ($($arg:tt)*) => { $crate::user::input::_print(format_args!($($arg)*)) }
+}
+
+pub macro serial_println {
+    ($($arg:tt)*) => { $crate::user::input::serial_print!("{}\r\n",format_args!($($arg)*)) }
 }
 
 pub fn _print(args : Arguments) {

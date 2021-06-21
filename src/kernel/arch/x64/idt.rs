@@ -1,5 +1,6 @@
 use x86_64::structures::idt::*;
 use x86_64::structures::gdt::*;
+use super::*;
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -23,9 +24,11 @@ lazy_static! {
         let mut idt = InterruptDescriptorTable::new();
 
         idt.breakpoint.set_handler_fn(breakpoint_handler);
-
-        idt.double_fault.set_handler_fn(double_fault_handler);
-
+        unsafe {
+            idt.double_fault
+            .set_handler_fn(double_fault_handler)
+            .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
+        }
         idt[interrupt_index(0) as usize].set_handler_fn(irq0);
         idt[interrupt_index(1) as usize].set_handler_fn(irq1);
         idt[interrupt_index(2) as usize].set_handler_fn(irq2);

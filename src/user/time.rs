@@ -16,7 +16,11 @@ lazy_static! {
 }
 
 pub fn ticks() -> u128 {
-    COUNTER.lock().ticks()
+    let mut t : u128 = 0;
+    without_interrupts(|| {
+        t = COUNTER.lock().ticks()
+    });
+    t
 }
 
 pub fn update() {

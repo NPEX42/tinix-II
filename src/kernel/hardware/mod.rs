@@ -1,7 +1,7 @@
 pub mod pic;
 pub mod pit;
 pub mod uart;
-pub mod vga;
+pub mod vga_hw;
 
 
 pub use x86_64::instructions::port::*;
@@ -11,4 +11,3 @@ pub type PortRO<T> = PortReadOnly<T>;
 pub type PortWO<T> = PortWriteOnly<T>;
 
 
-pub struct InitError(&'static str);

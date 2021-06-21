@@ -1,14 +1,14 @@
-pub use crate::kernel::drivers::vga::libs as vga;
+pub use crate::kernel::drivers::vga_dr as vga;
 
-pub use crate::kernel::drivers::vga::libs::Color16 as Color;
+pub use crate::kernel::drivers::vga_dr::Color16 as Color;
 
 use crate::user::math::*;
 
-pub use crate::kernel::drivers::vga::libs::draw_line as draw_line;
-pub use crate::kernel::drivers::vga::libs::draw as draw;
-pub use crate::kernel::drivers::vga::libs::draw_str as draw_str;
-pub use crate::kernel::drivers::vga::libs::draw_chr as draw_chr;
-pub use crate::kernel::drivers::vga::libs::clear_screen as clear_screen;
+pub use crate::kernel::drivers::vga_dr::draw_line as draw_line;
+pub use crate::kernel::drivers::vga_dr::draw as draw;
+pub use crate::kernel::drivers::vga_dr::draw_str as draw_str;
+pub use crate::kernel::drivers::vga_dr::draw_chr as draw_chr;
+pub use crate::kernel::drivers::vga_dr::clear_screen as clear_screen;
 use x86_64::instructions::interrupts::without_interrupts;
 
 
@@ -153,7 +153,7 @@ pub fn _print(args: Arguments) {
 #[doc(hidden)]
 pub fn _draw_string_f(x : usize, y : usize, color : Color, args : Arguments) {
     without_interrupts(|| {
-        VgaWriter::new(x,y,color).write_fmt(args);
+        VgaWriter::new(x,y,color).write_fmt(args).expect("FORMAT ERROR");
     });
 }
 
