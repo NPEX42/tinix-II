@@ -1,17 +1,4 @@
-    /// IN-TESTING, MAY HAVE UNDEFINED BEHAVIOUR
-    pub fn vsync_wait() {
-        unsafe {
-            let mut vga = VGA.lock();
-            crate::input::serial_println!("[{}]: MSR:{:08b}",file!(),vga.general_registers.read_msr());
-            while (vga.general_registers.read_msr() & 1 << 3) == 0 {
-                crate::input::serial_println!("VSync Bit: {:01b}", (vga.general_registers.read_msr() & 8) >> 3);
-            }
 
-            while (vga.general_registers.read_msr() & 1 << 3) == 1 {
-                crate::input::serial_println!("DD Bit: {:}", (vga.general_registers.read_msr() & 1) == 1);
-            }
-        }
-    }
 
     use lazy_static::lazy_static;
     use spin::*;
@@ -22,14 +9,17 @@
     use vga::vga::VGA;
     use x86_64::instructions::port::Port;
 
+    use crate::kernel::InitResult;
+
     lazy_static! {
         static ref GFX_MODE : Mutex<Graphics640x480x16> = Mutex::new(
             Graphics640x480x16::new()
         );
     }
 
-    pub fn init() {
+    pub fn init() -> InitResult<()> {
         GFX_MODE.lock().set_mode();
+        Ok(())
     }
 
     pub fn clear_screen(color : Color16) {

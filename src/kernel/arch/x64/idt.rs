@@ -1,16 +1,18 @@
 use x86_64::structures::idt::*;
 use x86_64::structures::gdt::*;
 use super::*;
+use crate::kernel::InitResult;
 
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-pub fn init() {
+pub fn init() -> InitResult<()> {
     IDT.load();
+    Ok(())
 }
 
-fn default_handler() {
-
+fn default_handler(irq : u8) {
+    crate::input::serial_println!("Fired IRQ #{}", irq);
 }
 
 // Translate IRQ into system interrupt
@@ -19,7 +21,7 @@ fn interrupt_index(irq: u8) -> u8 {
 }
 
 lazy_static! {
-    pub static ref IRQ_HANDLERS: Mutex<[fn(); 16]> = Mutex::new([default_handler; 16]);
+    pub static ref IRQ_HANDLERS: Mutex<[fn(u8); 16]> = Mutex::new([default_handler; 16]);
     static ref IDT : InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new();
 
@@ -46,7 +48,7 @@ macro_rules! irq_handler {
     ($handler:ident, $irq:expr) => {
         extern "x86-interrupt" fn $handler(_stack_frame : InterruptStackFrame) {
             let handlers = IRQ_HANDLERS.lock();
-            handlers[$irq]();
+            handlers[$irq]($irq);
             crate::kernel::hardware::pic::notify_end_of_interrupt(interrupt_index($irq));
         }        
     };
@@ -69,7 +71,7 @@ irq_handler!(irq13, 13);
 irq_handler!(irq14, 14);
 irq_handler!(irq15, 15);
 
-pub fn set_handler(irq : u8, func : fn()) {
+pub fn set_handler(irq : u8, func : fn(u8)) {
     IRQ_HANDLERS.lock()[irq as usize] = func;
 }
 

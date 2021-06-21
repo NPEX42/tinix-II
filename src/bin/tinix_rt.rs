@@ -14,8 +14,8 @@ pub fn main(args : &user::Arguments) -> usize {
 
     loop {
         vga::clear_screen(Color::Blue);
-        draw_string_f!(0,0,Color::White,"tick: {}", time::ticks());
-        time::sleep_ticks(1);
+        draw_string_f!(0,0,Color::White,"tick: {:?}", input::key());
+        time::sleep(0.1);
     }
     
     0
