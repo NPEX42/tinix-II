@@ -7,6 +7,8 @@
 
 #[warn(missing_docs)]
 
+#[cfg(feature = "liballoc")]
+pub extern crate alloc;
 
 use core::panic::PanicInfo;
 use x86_64::instructions::interrupts::without_interrupts;
@@ -16,9 +18,10 @@ pub mod user;
 pub mod std;
 
 
-
-
+pub use kernel::arch::x64::mem::*;
 pub use user::*;
+
+use x86_64::VirtAddr;
 
 /// Define Our own panic Handler
 #[panic_handler]
@@ -40,12 +43,45 @@ pub macro entry_point($path : path) {
     bootloader::entry_point!(tinix_start);
 
     pub fn tinix_start(boot_info : &'static bootloader::BootInfo) -> ! {
-        let main : fn(args : &$crate::user::Arguments) -> (usize) = $path;
+        let main : fn(&'static bootloader::BootInfo, args : &$crate::user::Arguments) -> (usize) = $path;
         
         $crate::kernel::boot(boot_info);
 
-        main(&$crate::user::Arguments::empty());
+        main(boot_info, &$crate::user::Arguments::empty());
         
         loop {}
     }
+}
+
+
+pub macro custom_boot($path : path) {
+
+    bootloader::entry_point!(tinix_start);
+
+    pub fn tinix_start(boot_info : &'static bootloader::BootInfo) -> ! {
+        use x86_64::VirtAddr;
+        use $crate::*;
+        let main : fn(&'static bootloader::BootInfo) = $path;
+        
+
+        $crate::kernel::boot(boot_info);
+
+        main(boot_info);
+        
+        loop {
+            $crate::user::time::sleep(1.0);
+        }
+    }
+}
+
+
+
+
+#[alloc_error_handler]
+fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
+    panic!("allocation error: {:?}", layout)
+}
+
+pub fn version() -> &'static str {
+    env!("CARGO_PKG_VERSION", "?.?.?")
 }

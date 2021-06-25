@@ -1,3 +1,5 @@
+pub mod widgets;
+
 pub use crate::kernel::drivers::vga_dr as vga;
 
 pub use crate::kernel::drivers::vga_dr::Color16 as Color;
@@ -10,6 +12,10 @@ pub use crate::kernel::drivers::vga_dr::draw_str as draw_str;
 pub use crate::kernel::drivers::vga_dr::draw_chr as draw_chr;
 pub use crate::kernel::drivers::vga_dr::clear_screen as clear_screen;
 use x86_64::instructions::interrupts::without_interrupts;
+
+
+pub const WIDTH  : usize = 640;
+pub const HEIGHT : usize = 480;
 
 
 pub use core::fmt::*;
@@ -85,20 +91,19 @@ pub struct Image16<'a> {
 
 impl<'a> Image16<'a> {
     pub fn from(raw : &'a [u8]) -> Image16 {
-        assert_eq!([b'I', b'M', b'G', b'0', b'1', b'6'], raw[..=5], "\n Invalid Raw Data, Missing Magic IMG016 Header Data...\n");
         Image16 {
-            width : raw[6],
-            height : raw[7],
+            width : raw[0],
+            height : raw[1],
 
-            data : &raw[8..]
+            data : &raw[2..]
         }
     }
 
     pub fn draw(&self, ox : usize, oy : usize) {
-        for y in 0..self.height {
+        for y in 0..self.height as u16 {
             for x in 0..self.width {
-                let index = (y * self.width + x) as usize;
-                draw(x  as usize, y as usize, COLORS[self.data[index] as usize % 16])
+                let index = (y * self.width as u16 + x as u16) as usize;
+                draw( ox+x  as usize, oy+y as usize, COLORS[self.data[index] as usize % 16])
             }
         }
     }
@@ -143,6 +148,22 @@ macro_rules! draw_string_f {
     }
 }
 
+#[macro_export]
+macro_rules! reset_pos {
+    () => {
+        $crate::user::graphics::_reset_pos();
+    };
+}
+
+
+#[doc(hidden)]
+pub fn _reset_pos() {
+    without_interrupts(|| {
+        WRITER.lock().reset_pos()
+    });
+}
+
+
 #[doc(hidden)]
 pub fn _print(args: Arguments) {
     without_interrupts(|| {
@@ -170,11 +191,11 @@ impl VgaWriter {
 
     pub fn write_str(&mut self, txt : &str) {
         for (_, chr) in txt.chars().enumerate() {
-            if chr != '\n' {
+            if chr != '\n' && self.x < 480 {
                 self.write_chr(chr);
                 self.x += font_width();
             } else {
-                self.x = 0;
+                self.x = 1;
                 self.y += font_height();
             } 
             
@@ -183,6 +204,11 @@ impl VgaWriter {
 
     fn write_chr(&mut self, chr : char) {
         draw_chr(self.x, self.y, chr, self.color);
+    }
+
+    fn reset_pos(&mut self) {
+        self.x = 0;
+        self.y = 0;
     }
 }
 

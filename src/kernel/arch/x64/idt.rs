@@ -12,7 +12,7 @@ pub fn init() -> InitResult<()> {
 }
 
 fn default_handler(irq : u8) {
-    crate::input::serial_println!("Fired IRQ #{}", irq);
+    //crate::input::serial_println!("Fired IRQ #{}", irq);
 }
 
 // Translate IRQ into system interrupt
@@ -31,6 +31,9 @@ lazy_static! {
             .set_handler_fn(double_fault_handler)
             .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
         }
+
+        idt.page_fault.set_handler_fn(page_fault_handler);
+
         idt[interrupt_index(0) as usize].set_handler_fn(irq0);
         idt[interrupt_index(1) as usize].set_handler_fn(irq1);
         idt[interrupt_index(2) as usize].set_handler_fn(irq2);
@@ -76,9 +79,19 @@ pub fn set_handler(irq : u8, func : fn(u8)) {
 }
 
 extern "x86-interrupt" fn double_fault_handler(stack_frame: InterruptStackFrame, _error_code: u64) -> ! {
-    panic!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
+    panic!("EXCEPTION: DOUBLE FAULT\n{:#?}, Error: {:x}", stack_frame, _error_code);
 }
 
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
     crate::print!("EXCEPTION: BREAKPOINT\n{:#?}\n", stack_frame);
+}
+
+extern "x86-interrupt" fn page_fault_handler(stack_frame: InterruptStackFrame, ec : PageFaultErrorCode) {
+    use x86_64::registers::control::Cr2;
+    use crate::println;
+    println!("EXCEPTION: PAGE FAULT");
+    println!("Accessed Address: {:?}", Cr2::read());
+    println!("Error Code: {:?}", ec);
+    println!("{:#?}", stack_frame);
+    loop {crate::time::sleep_ticks(10)}
 }

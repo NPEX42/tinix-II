@@ -30,9 +30,10 @@
         GFX_MODE.lock().set_pixel(x,y,color);
     }
 
-    pub fn draw_str(x : usize, y : usize, text : &str, color : Color16) {
+    pub fn draw_str(x : usize, mut y : usize, text : &str, color : Color16) {
         let mode = GFX_MODE.lock();
         for (offset, chr) in text.chars().enumerate() {
+                if chr == '\n' || x * 8 + offset > 80 {y += 1};
                 mode.draw_character(x + offset * 8, y, chr, Color16::White);
         }
     }

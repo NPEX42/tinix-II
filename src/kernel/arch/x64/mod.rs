@@ -1,5 +1,6 @@
 pub mod idt;
 pub mod gdt;
+pub mod mem;
 
 use crate::kernel::InitResult;
 

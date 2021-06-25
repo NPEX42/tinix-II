@@ -3,6 +3,10 @@ pub mod math;
 pub mod time;
 pub mod input;
 
+
+#[cfg(feature = "liballoc")]
+pub use alloc as data;
+
 pub struct Arguments {
     parent : &'static str,
     args   : Option<&'static [&'static str]> 
