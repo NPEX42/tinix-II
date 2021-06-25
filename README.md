@@ -4,7 +4,7 @@
 ### In Progress
 - [x] - VGA Graphics
 - [ ] - RAM File System
-- [ ] - Memory Alloctator
+- [x] - Memory Alloctator
 - [x] - Keyboard Input
 - [ ] - Shell
 - [ ] - Basic ELF64 Loader
