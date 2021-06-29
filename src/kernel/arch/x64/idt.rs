@@ -37,6 +37,8 @@ lazy_static! {
 
         idt.non_maskable_interrupt.set_handler_fn(nmi);
 
+        idt.divide_error.set_handler_fn(divide_fault);
+
         idt[interrupt_index(0) as usize].set_handler_fn(irq0);
         idt[interrupt_index(1) as usize].set_handler_fn(irq1);
         idt[interrupt_index(2) as usize].set_handler_fn(irq2);
@@ -85,11 +87,11 @@ pub fn set_handler(irq : u8, func : fn(u8)) {
 }
 
 extern "x86-interrupt" fn double_fault_handler(stack_frame: InterruptStackFrame, _error_code: u64) -> ! {
-    panic!("EXCEPTION: DOUBLE FAULT\n{:#?}, Error: {:x}", stack_frame, _error_code);
+    panic!("EXCEPTION: DOUBLE FAULT\n\r{:#?}, Error: 0x{:x}", stack_frame, _error_code);
 }
 
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
-    crate::print!("EXCEPTION: BREAKPOINT\n{:#?}\n", stack_frame);
+    crate::print!("EXCEPTION: BREAKPOINT\n\r{:#?}\n\r", stack_frame);
 }
 
 extern "x86-interrupt" fn page_fault_handler(stack_frame: InterruptStackFrame, ec : PageFaultErrorCode) {
@@ -116,4 +118,8 @@ extern "x86-interrupt" fn nmi(stack_frame: InterruptStackFrame) {
 
 extern "x86-interrupt" fn swi_0(stack_frame: InterruptStackFrame) {
     crate::input::serial_println!("SWI0 Fired...");
+}
+
+extern "x86-interrupt" fn divide_fault(stack_frame: InterruptStackFrame) {
+    crate::input::serial_println!("Divide Fault Fired... {:?}", stack_frame);
 }

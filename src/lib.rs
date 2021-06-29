@@ -11,6 +11,7 @@
 pub extern crate alloc;
 
 use core::panic::PanicInfo;
+use data::format;
 use x86_64::instructions::interrupts::without_interrupts;
 
 pub mod kernel;

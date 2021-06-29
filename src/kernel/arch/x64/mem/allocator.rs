@@ -88,6 +88,7 @@ pub fn init_heap(
     mapper: &mut impl Mapper<Size4KiB>,
     frame_allocator: &mut impl FrameAllocator<Size4KiB>,
 ) -> Result<(), MapToError<Size4KiB>> {
+    use crate::input::*;
     let mut pb = crate::graphics::widgets::progress_bar::ProgressBar::new(
         "Memory Init Progress: ",
         crate::heap::HEAP_SIZE, 
@@ -102,10 +103,7 @@ pub fn init_heap(
         let heap_end_page = Page::containing_address(heap_end);
         Page::range_inclusive(heap_start_page, heap_end_page)
     };
-
     let mut bytes_inited = 0;
-
-    crate::input::serial_println!("Initializing Pages...");
     for page in page_range {
         let frame = frame_allocator
             .allocate_frame()
@@ -115,8 +113,23 @@ pub fn init_heap(
             mapper.map_to(page, frame, flags, frame_allocator)?.flush();
         };
         bytes_inited += 4096;
+        let prog_len = 25;
+        serial_print!("Initializing {} Bytes - [", HEAP_SIZE);
+        let mut remaining = prog_len;
+        let fill = bytes_inited as f32 / HEAP_SIZE as f32;
+        for i in 0..=((prog_len as f32 * fill) as usize) {
+            serial_print!("=");
+            remaining -= 1;
+        }
+
+        for i in 0..=remaining {
+            serial_print!(" ");
+        }
+        if page != page_range.last().unwrap() {
+        serial_print!("] - {:02.2}%\r", fill * 100.0)
+        }
     }
-    crate::input::serial_println!("Completed Heap Init...");
+    serial_println!("] - OK                    ");
 
     unsafe {
         without_interrupts(|| {
