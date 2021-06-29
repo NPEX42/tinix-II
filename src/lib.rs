@@ -13,7 +13,7 @@ pub extern crate alloc;
 use core::panic::PanicInfo;
 use x86_64::instructions::interrupts::without_interrupts;
 
-mod kernel;
+pub mod kernel;
 pub mod user;
 pub mod std;
 

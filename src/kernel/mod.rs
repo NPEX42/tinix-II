@@ -16,8 +16,8 @@ pub fn boot(_boot_info : &'static BootInfo) {
     graphics::clear_screen(graphics::Color::Black);
     println!("Booting Tinix-core v{}", crate::version());
     init_component!(arch::x64::init, ());
-    init_component!(hardware::pic::init, ());
     init_component!(hardware::pit::init, ());
+    init_component!(hardware::pic::init, ());
     set_interrupt!(0, crate::time::update);
     crate::println!("[Boot/mem::allocator::init_heap] - Initialising {} Bytes - ", heap::HEAP_SIZE);
     let phys_mem_offset = VirtAddr::new(_boot_info.physical_memory_offset);
@@ -51,8 +51,10 @@ pub macro init_component($path : path, $return_type : ty) {
     {
         let f : fn() -> InitResult<$return_type> = $path;
         $crate::print!("[Boot/{}] - Initing - ", stringify!($path));
+        $crate::input::serial_print!("[Boot/{}] - Initializing - ", stringify!($path));
         let result = f().expect("Failed");
         $crate::println!("OK");
+        $crate::input::serial_println!("OK");
         result
     }
 } 
@@ -61,10 +63,8 @@ pub macro set_interrupt($irq : expr, $path : path) {
     {
         let f : fn(u8) = $path;
         $crate::input::serial_print!("[Boot/{}] - Hooking Up Interrupt #{} - ", stringify!($path), $irq);
-        $crate::input::serial_print!("[Boot/{}] - Hooking Up Interrupt #{} - ", stringify!($path), $irq);
         let result = $crate::kernel::arch::set_interrupt($irq, f).expect("Failed");
         $crate::input::serial_println!("OK");
-        $crate::input::serial_print!("[Boot/{}] - Hooking Up Interrupt #{} - ", stringify!($path), $irq);
         result
     }
 }
