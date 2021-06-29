@@ -3,12 +3,12 @@
 ## Overview
 ### In Progress
 - [x] - VGA Graphics
-- [ ] - RAM File System
+- [x] - RAM File System
 - [x] - Memory Alloctator
 - [x] - Keyboard Input
 - [ ] - Shell
 - [ ] - Basic ELF64 Loader
-- [ ] - RealTime Clock
+- [x] - RealTime Clock
 - [x] - PIT
 - [ ] - Software Interrupts
 - [x] - Triple Fault Protection 

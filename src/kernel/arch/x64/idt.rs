@@ -33,6 +33,9 @@ lazy_static! {
         }
 
         idt.page_fault.set_handler_fn(page_fault_handler);
+        idt.general_protection_fault.set_handler_fn(general_protection_fault);
+
+        idt.non_maskable_interrupt.set_handler_fn(nmi);
 
         idt[interrupt_index(0) as usize].set_handler_fn(irq0);
         idt[interrupt_index(1) as usize].set_handler_fn(irq1);
@@ -42,6 +45,9 @@ lazy_static! {
         idt[interrupt_index(5) as usize].set_handler_fn(irq5);
         idt[interrupt_index(6) as usize].set_handler_fn(irq6);
         idt[interrupt_index(7) as usize].set_handler_fn(irq7);
+
+
+        idt[interrupt_index(128) as usize].set_handler_fn(swi_0);
 
         idt
     };
@@ -94,4 +100,20 @@ extern "x86-interrupt" fn page_fault_handler(stack_frame: InterruptStackFrame, e
     println!("Error Code: {:?}", ec);
     println!("{:#?}", stack_frame);
     loop {crate::time::sleep_ticks(10)}
+}
+
+extern "x86-interrupt" fn general_protection_fault(stack_frame: InterruptStackFrame, ec : u64) {
+    use crate::println;
+    println!("GP Fault Error Code: {:?}", ec);
+    println!("{:#?}", stack_frame);
+    loop {crate::time::sleep_ticks(10)}
+}
+
+extern "x86-interrupt" fn nmi(stack_frame: InterruptStackFrame) {
+    crate::input::serial_println!("NMI Fired...");
+} 
+
+
+extern "x86-interrupt" fn swi_0(stack_frame: InterruptStackFrame) {
+    crate::input::serial_println!("SWI0 Fired...");
 }

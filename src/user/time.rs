@@ -2,6 +2,8 @@ use spin::Mutex;
 use lazy_static::lazy_static;
 use x86_64::instructions::interrupts::{without_interrupts, enable_and_hlt};
 
+use crate::kernel::hardware::cmos::{Cmos, Rtc};
+
 pub struct Counter(u128);
 
 pub const TICKS_PER_SECOND : usize = 1000;
@@ -40,3 +42,6 @@ pub fn sleep(seconds : f64) {
 }
 
 
+pub fn get_rtc() -> Rtc {
+    Cmos::get().rtc()
+}
