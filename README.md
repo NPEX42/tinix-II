@@ -4,6 +4,7 @@
 ### In Progress
 - [x] - VGA Graphics
 - [x] - RAM File System
+- [ ] - ATA Integration
 - [x] - Memory Alloctator
 - [x] - Keyboard Input
 - [ ] - Shell
@@ -23,7 +24,7 @@
 ## Technical Standards
 - POSIX - SystemV Compatiblity - [2016-09-30]
 - FAT32 - File System
-- TOML  - System Configuration - []
+- TOML  - System Configuration
 - UTF-8 - Text Encoding
 - 
 
