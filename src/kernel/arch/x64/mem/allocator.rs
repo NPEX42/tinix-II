@@ -1,10 +1,10 @@
 use bootloader::bootinfo::{MemoryMap, MemoryRegionType};
 use x86_64::{PhysAddr, instructions::interrupts::without_interrupts, structures::paging::{Size4KiB, FrameAllocator, PhysFrame}};
-use crate::{graphics::{Color, clear_screen, widgets::Renderable}, time};
+use crate::{draw_string_f, graphics::{Color, clear_screen, draw_filled_rect, widgets::Renderable}, print, time};
 use linked_list_allocator::LockedHeap;
 
 #[global_allocator]
-static ALLOCATOR: LockedHeap = LockedHeap::empty();
+pub static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
 
 pub struct NullFrameAllocator;
@@ -128,8 +128,10 @@ pub fn init_heap(
         if page != page_range.last().unwrap() {
         serial_print!("] - {:02.2}%\r", fill * 100.0)
         }
+
+        
     }
-    serial_println!("] - OK                    ");
+    serial_println!("] - OK   ");
 
     unsafe {
         without_interrupts(|| {
@@ -137,4 +139,10 @@ pub fn init_heap(
         });
     }
     Ok(())
+}
+
+
+struct HeapInfo {
+    start : usize,
+    size : usize
 }

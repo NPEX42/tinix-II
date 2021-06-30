@@ -19,5 +19,6 @@ pub fn main(boot : &'static bootloader::BootInfo) {
         time::sleep(1.0);
         vga::clear_screen(Color::Blue);
         draw_string_f!(0,0,Color::LightRed, "Time: {}", time::get_rtc());
+        draw_string_f!(0,20,Color::LightRed, "Free: {}, Used: {}, Total: {}", sys::mem::free(), sys::mem::used(), sys::mem::total());
     }
 }

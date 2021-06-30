@@ -1,6 +1,6 @@
 [package]
 name = "tinix"
-version = "0.10.1"
+version = "0.10.2"
 edition = "2018"
 
 default = ["gfx640x480"]
@@ -23,6 +23,7 @@ uart_16550 = "0.2.15"
 pc-keyboard = "*"
 linked_list_allocator = "*"
 bytes = {version = "1.0.1", default-features = false}
+
 
 
 [dependencies.lazy_static]

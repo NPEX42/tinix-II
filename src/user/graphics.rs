@@ -191,7 +191,7 @@ impl VgaWriter {
 
     pub fn write_str(&mut self, txt : &str) {
         for (_, chr) in txt.chars().enumerate() {
-            if chr != '\n' && self.x < 480 {
+            if chr != '\n' && self.x < 640 {
                 self.write_chr(chr);
                 self.x += font_width();
             } else {
