@@ -1,5 +1,5 @@
 use super::*;
-use crate::{draw_string_f, graphics::*};
+use crate::{graphics::*};
 
 pub struct ProgressBar {
     text : &'static str,
@@ -29,7 +29,7 @@ impl Renderable for ProgressBar {
             self.filled_color
         );
 
-        draw_string_f!(pb_ox + x + self.scale + 2, y, Color::White, " {:2.2}% [{} of {}]...", (self.fill * 100 as f32) as  f32,(self.fill * self.max as f32) as usize, self.max);
+       
     }
 }
 

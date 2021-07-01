@@ -28,10 +28,9 @@ use x86_64::VirtAddr;
 #[panic_handler]
 fn on_panic(_info : &PanicInfo) -> ! {
     without_interrupts(|| {
-        user::graphics::clear_screen(user::graphics::Color::Red);
-        println!("== PANIC ==\n [ {} ]", _info);
-
-        input::serial_print!("{}", _info);
+        crate::io::devices::console::clear();
+        crate::io::devices::console::home();
+        log!("== PANIC ==\nInfo: {:?}", _info);
     });
     loop {user::time::sleep_ticks(1000)}
 }

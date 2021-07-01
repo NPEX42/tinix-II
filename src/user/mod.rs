@@ -4,6 +4,7 @@ pub mod time;
 pub mod input;
 // pub mod fs;
 pub mod sys;
+pub mod io;
 
 
 #[cfg(feature = "liballoc")]

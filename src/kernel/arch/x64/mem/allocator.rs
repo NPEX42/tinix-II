@@ -1,6 +1,6 @@
 use bootloader::bootinfo::{MemoryMap, MemoryRegionType};
 use x86_64::{PhysAddr, instructions::interrupts::without_interrupts, structures::paging::{Size4KiB, FrameAllocator, PhysFrame}};
-use crate::{draw_string_f, graphics::{Color, clear_screen, draw_filled_rect, widgets::Renderable}, print, time};
+use crate::{graphics::{Color}, time, log};
 use linked_list_allocator::LockedHeap;
 
 #[global_allocator]
@@ -89,13 +89,6 @@ pub fn init_heap(
     frame_allocator: &mut impl FrameAllocator<Size4KiB>,
 ) -> Result<(), MapToError<Size4KiB>> {
     use crate::input::*;
-    let mut pb = crate::graphics::widgets::progress_bar::ProgressBar::new(
-        "Memory Init Progress: ",
-        crate::heap::HEAP_SIZE, 
-        Color::Blue, 
-        Color::Cyan, 
-        128
-    );
     let page_range = {
         let heap_start = VirtAddr::new(HEAP_START as u64);
         let heap_end = heap_start + HEAP_SIZE - 1u64;
@@ -104,7 +97,10 @@ pub fn init_heap(
         Page::range_inclusive(heap_start_page, heap_end_page)
     };
     let mut bytes_inited = 0;
+    let mut tp1 = 0;
+    let mut tp2 = 0;
     for page in page_range {
+        tp1 = time::ticks();
         let frame = frame_allocator
             .allocate_frame()
             .ok_or(MapToError::FrameAllocationFailed)?;
@@ -112,30 +108,39 @@ pub fn init_heap(
         unsafe {
             mapper.map_to(page, frame, flags, frame_allocator)?.flush();
         };
+        tp2 = time::ticks();
+
         bytes_inited += 4096;
-        let prog_len = 25;
-        serial_print!("Initializing {} Bytes - [", HEAP_SIZE);
+        let prog_len = 10;
+        log!("Initializing {} Bytes - [", HEAP_SIZE);
         let mut remaining = prog_len;
         let fill = bytes_inited as f32 / HEAP_SIZE as f32;
         for i in 0..=((prog_len as f32 * fill) as usize) {
-            serial_print!("=");
+            log!("=");
             remaining -= 1;
         }
 
         for i in 0..=remaining {
-            serial_print!(" ");
+            log!(" ");
         }
+
         if page != page_range.last().unwrap() {
-        serial_print!("] - {:02.2}%\r", fill * 100.0)
+        let time_per_frame = tp2 - tp1;
+        let bytes_remaining = HEAP_SIZE - bytes_inited;
+        let microseconds_per_byte = (time_per_frame as f64 * 1000.0) / 4096.0;
+        let millis_per_megabyte = microseconds_per_byte * 1024.0 * 1024.0;
+        let time_remaining_seconds = (bytes_remaining as f64 * microseconds_per_byte / 1000.0) / 1000.0;
+        log!("] - {:03.1}% - {:03.1}us/B - {:03.0}s\r", fill * 100.0, (microseconds_per_byte),time_remaining_seconds);
+        reset_text_color();
         }
 
         
     }
-    serial_println!("] - OK   ");
+    log!("] - [OK]    ");
 
     unsafe {
         without_interrupts(|| {
-            ALLOCATOR.lock().init(HEAP_START, HEAP_SIZE);
+            ALLOCATOR.lock().init(HEAP_START,HEAP_SIZE );
         });
     }
     Ok(())

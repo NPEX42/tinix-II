@@ -1,4 +1,5 @@
-use core::fmt::Arguments;
+use core::{borrow::Borrow, fmt::Arguments};
+use alloc::collections::VecDeque;
 use x86_64::instructions::interrupts::without_interrupts;
 use pc_keyboard::*;
 use x86_64::instructions::port::*;
@@ -38,6 +39,14 @@ pub fn _print(args : Arguments) {
         crate::kernel::hardware::uart::write_str(args);
     });
 }
+
+pub fn set_text_color(color : u8) {
+    serial_print!("\u{1b}[1;{}m", color)
+}
+
+pub fn reset_text_color() {
+    serial_print!("\u{1b}[0m")
+}
     
 
 lazy_static! {
@@ -50,7 +59,10 @@ struct KeyBoard {
     //IO Ports
     data    : Port<u8>, //Port 0x60
     //pc-keyboard
-    kb      : Keyboard<layouts::Uk105Key, ScancodeSet1>
+    kb      : Keyboard<layouts::Uk105Key, ScancodeSet1>,
+
+
+    buffer : VecDeque<char>,
 }
 
 impl KeyBoard {
@@ -58,7 +70,8 @@ impl KeyBoard {
         KeyBoard {
             last_key : None,
             data : Port::new(0x60),
-            kb : Keyboard::new(layouts::Uk105Key, ScancodeSet1, HandleControl::Ignore)
+            kb : Keyboard::new(layouts::Uk105Key, ScancodeSet1, HandleControl::Ignore),
+            buffer : VecDeque::new(),
         }
     }
 
@@ -74,11 +87,14 @@ impl KeyBoard {
                     } else {None}
                 } else {None}
             };
+        if result.is_some() {
+             self.buffer.push_back(result.unwrap());
+        }
         self.last_key = result;
     }
 
-    pub fn last_key(&self) -> Option<char> {
-        self.last_key
+    pub fn last_key(&mut self) -> Option<char> {
+        self.buffer.pop_front()
     }
 }
 

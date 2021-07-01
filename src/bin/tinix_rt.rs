@@ -1,6 +1,6 @@
 #![no_std]
 #![no_main]
-use tinix::{*, graphics::widgets::Renderable, input::serial_println};
+use tinix::{*, graphics::widgets::Renderable, input::serial_println, sys::mem};
 use user::*;
 
 use graphics::*;
@@ -11,14 +11,15 @@ use data::vec;
 use vec::Vec;
 use data::rc::*;
 
+use io::IoReader;
+
 custom_boot!(main);
 
 
 pub fn main(boot : &'static bootloader::BootInfo) {
     loop {
-        time::sleep(1.0);
-        vga::clear_screen(Color::Blue);
-        draw_string_f!(0,0,Color::LightRed, "Time: {}", time::get_rtc());
-        draw_string_f!(0,20,Color::LightRed, "Free: {}, Used: {}, Total: {}", sys::mem::free(), sys::mem::used(), sys::mem::total());
+        log!("Total:{} Free:{} Used:{}, Keyboard Head: {:?}           \r", mem::total(), mem::free(), mem::used(), io::devices::keyboard::KeyBoard.read());
+
+        time::sleep(0.033);
     }
 }

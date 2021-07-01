@@ -23,9 +23,6 @@ pub use core::fmt::*;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-lazy_static! {
-    static ref WRITER : Mutex<VgaWriter> = Mutex::new(VgaWriter::new(0,0, Color::White));
-}
 
 pub fn font_height() -> usize {
     vga::fonts::TEXT_8X8_FONT.character_height as usize
@@ -141,80 +138,9 @@ macro_rules! print {
     ($($arg:tt)*) => { $crate::user::graphics::_print(format_args!($($arg)*)) }
 }
 
-#[macro_export]
-macro_rules! draw_string_f {
-    ($x:expr, $y:expr,$c : expr, $($arg:tt)*) => { 
-        $crate::user::graphics::_draw_string_f($x, $y, $c, format_args!($($arg)*))
-    }
-}
-
-#[macro_export]
-macro_rules! reset_pos {
-    () => {
-        $crate::user::graphics::_reset_pos();
-    };
+pub fn _print(args : Arguments) {
+        crate::io::devices::console::_print(args);
 }
 
 
-#[doc(hidden)]
-pub fn _reset_pos() {
-    without_interrupts(|| {
-        WRITER.lock().reset_pos()
-    });
-}
 
-
-#[doc(hidden)]
-pub fn _print(args: Arguments) {
-    without_interrupts(|| {
-        WRITER.lock().write_fmt(args).unwrap();
-    });
-}
-
-#[doc(hidden)]
-pub fn _draw_string_f(x : usize, y : usize, color : Color, args : Arguments) {
-    without_interrupts(|| {
-        VgaWriter::new(x,y,color).write_fmt(args).expect("FORMAT ERROR");
-    });
-}
-
-pub struct VgaWriter {
-    x : usize, y : usize, color : Color
-}
-
-impl VgaWriter {
-    pub fn new(x : usize, y : usize, color : Color) -> VgaWriter {
-        VgaWriter {
-            x, y, color
-        }
-    }
-
-    pub fn write_str(&mut self, txt : &str) {
-        for (_, chr) in txt.chars().enumerate() {
-            if chr != '\n' && self.x < 640 {
-                self.write_chr(chr);
-                self.x += font_width();
-            } else {
-                self.x = 1;
-                self.y += font_height();
-            } 
-            
-        }
-    }
-
-    fn write_chr(&mut self, chr : char) {
-        draw_chr(self.x, self.y, chr, self.color);
-    }
-
-    fn reset_pos(&mut self) {
-        self.x = 0;
-        self.y = 0;
-    }
-}
-
-impl Write for VgaWriter {
-    fn write_str(&mut self, s : &str) -> Result {
-        self.write_str(s);
-        Ok(())
-    }
-}

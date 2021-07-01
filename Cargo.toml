@@ -1,6 +1,6 @@
 [package]
 name = "tinix"
-version = "0.10.2"
+version = "0.10.3"
 edition = "2018"
 
 default = ["gfx640x480"]
@@ -23,6 +23,7 @@ uart_16550 = "0.2.15"
 pc-keyboard = "*"
 linked_list_allocator = "*"
 bytes = {version = "1.0.1", default-features = false}
+fat32 = "0.2.0"
 
 
 
@@ -41,7 +42,11 @@ HEAP32 = []
 default = ["gfx640x480", "libcore", "HEAP16"]
 
 [package.metadata.bootimage]
-run-args = ["-d", "cpu_reset", "-m", "1024"]
+run-args = [
+    "-d", "cpu_reset",
+    "-m", "128",
+    "-serial","stdio"
+]
 
 test-args = [
     "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio", "-display", "none"

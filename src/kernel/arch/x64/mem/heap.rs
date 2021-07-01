@@ -3,7 +3,7 @@ pub const HEAP_START: usize = 0x4444_4444_0000;
 pub const HEAP_SIZE: usize =  128 * MB; // 1MB
 
 #[cfg(feature = "HEAP16")]
-pub const HEAP_SIZE: usize =  16 * MB; // 1MB
+pub const HEAP_SIZE: usize =  1 * MB; // 1MB
 
 #[cfg(feature = "HEAP32")]
 pub const HEAP_SIZE: usize =  32 * MB; // 1MB

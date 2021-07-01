@@ -26,4 +26,7 @@
 - TOML  - System Configuration - []
 - UTF-8 - Text Encoding
 - 
-
+----
+## Design Philosophily
+- Simple - Every Component should be simple yet robust.
+- Easily Extended - 

@@ -1,10 +1,14 @@
+use x86_64::instructions::port::Port;
 use x86_64::structures::idt::*;
 use x86_64::structures::gdt::*;
 use super::*;
 use crate::kernel::InitResult;
+use crate::kernel::hardware::pic::*;
 
 use lazy_static::lazy_static;
 use spin::Mutex;
+const PIC1: u16 = 0x21;
+const PIC2: u16 = 0xA1;
 
 pub fn init() -> InitResult<()> {
     IDT.load();
@@ -85,6 +89,24 @@ irq_handler!(irq15, 15);
 pub fn set_handler(irq : u8, func : fn(u8)) {
     IRQ_HANDLERS.lock()[irq as usize] = func;
 }
+
+
+pub fn set_irq_mask(irq: u8) {
+    let mut port: Port<u8> = Port::new(if irq < 8 { PIC1 } else { PIC2 });
+    unsafe {
+        let value = port.read() | (1 << (if irq < 8 { irq } else { irq - 8 }));
+        port.write(value);
+    }
+}
+
+pub fn clear_irq_mask(irq: u8) {
+    let mut port: Port<u8> = Port::new(if irq < 8 { PIC1 } else { PIC2 });
+    unsafe {
+        let value = port.read() & !(1 << if irq < 8 { irq } else { irq - 8 });
+        port.write(value);
+    }
+}
+
 
 extern "x86-interrupt" fn double_fault_handler(stack_frame: InterruptStackFrame, _error_code: u64) -> ! {
     panic!("EXCEPTION: DOUBLE FAULT\n\r{:#?}, Error: 0x{:x}", stack_frame, _error_code);
