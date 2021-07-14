@@ -1,18 +1,21 @@
-use core::{borrow::Borrow, fmt::Arguments};
-use alloc::collections::VecDeque;
+use core::{fmt::Arguments, num::ParseIntError, ops::Range};
+use alloc::{collections::VecDeque, string::String};
 use x86_64::instructions::interrupts::without_interrupts;
 use pc_keyboard::*;
 use x86_64::instructions::port::*;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
+use crate::{clear_row, io::devices::console::BACKSPACE, kernel::arch::enable_irq, log, time};
+
 pub fn init() -> crate::kernel::InitResult<()> {
+    enable_irq(1);
     crate::kernel::arch::set_interrupt(1, on_key_pressed)
     .expect("Unable To Setup Keyboard Interrupt");
     Ok(())
 }
 
-fn on_key_pressed(irq : u8) {
+fn on_key_pressed(_irq : u8) {
     without_interrupts(|| {
         KEYBOARD.lock().process_scancode();
     });
@@ -55,7 +58,6 @@ lazy_static! {
 
 
 struct KeyBoard {
-    last_key    : Option<char>,
     //IO Ports
     data    : Port<u8>, //Port 0x60
     //pc-keyboard
@@ -68,7 +70,6 @@ struct KeyBoard {
 impl KeyBoard {
     pub fn new() -> Self {
         KeyBoard {
-            last_key : None,
             data : Port::new(0x60),
             kb : Keyboard::new(layouts::Uk105Key, ScancodeSet1, HandleControl::Ignore),
             buffer : VecDeque::new(),
@@ -76,8 +77,7 @@ impl KeyBoard {
     }
 
     pub fn process_scancode(&mut self) {
-        let mut result : Option<char> = None;
-            result = {
+        let result : Option<char> = {
                 if let Ok(Some(event)) = self.kb.add_byte(unsafe {self.data.read()}) {
                     if let Some(key) = self.kb.process_keyevent(event) {
                         match key {
@@ -90,7 +90,6 @@ impl KeyBoard {
         if result.is_some() {
              self.buffer.push_back(result.unwrap());
         }
-        self.last_key = result;
     }
 
     pub fn last_key(&mut self) -> Option<char> {
@@ -105,3 +104,35 @@ pub fn key() -> Option<char> {
     });
     lk
 } 
+
+pub fn string(prompt : &str) -> String {
+    let mut s = String::new();
+    clear_row!();
+    log!("{}{}\r",prompt, s);
+    'consume_chars: loop {
+        if let Some(key) = key() {
+            if key == '\n' {break 'consume_chars}
+            if key == BACKSPACE as char {s.pop();}
+            s.push(key);
+            clear_row!();
+            log!("{}{}\r",prompt, s);
+        }
+        
+        time::sleep_ticks(10); //Check 100 Times per second
+    }
+    s
+}
+
+pub fn number(prompt : &str, range : Range<usize>) -> usize {
+    loop {
+        let inp = self::string(prompt);
+        let result : Result<usize, ParseIntError>  = inp.parse::<usize>();
+        if result.is_ok() {
+            let value = result.expect("");
+            if range.contains(&value) {
+                return value;
+            }
+        }
+    }
+    
+}

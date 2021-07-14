@@ -4,8 +4,6 @@ pub const MB_PER_DISK      : usize = 1;
 pub const SECTORS_PER_DISK : usize = MB_PER_DISK * SECTORS_PER_MB;
 
 pub const MAX_STRUCTURE_SIZE : usize = BYTES_PER_SECTOR * 1;
-
-use core::{mem::{self, size_of}, ops::Range, ptr, usize};
 use crate::{data::boxed::*, };//fs::BinarySerializable};
 
 
@@ -107,7 +105,7 @@ impl Disk {
     //     self.write_slice(address, data);
     // }
 
-    pub fn read_slice(&mut self, mut buffer : &mut [u8], address : usize) {
+    pub fn read_slice(&mut self, buffer : &mut [u8], address : usize) {
         for i in 0..buffer.len() {
             let (sector, offset) = to_sector_offset(i + address);
             buffer[i] = self.read(sector, offset);

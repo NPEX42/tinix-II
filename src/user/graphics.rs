@@ -11,7 +11,6 @@ pub use crate::kernel::drivers::vga_dr::draw as draw;
 pub use crate::kernel::drivers::vga_dr::draw_str as draw_str;
 pub use crate::kernel::drivers::vga_dr::draw_chr as draw_chr;
 pub use crate::kernel::drivers::vga_dr::clear_screen as clear_screen;
-use x86_64::instructions::interrupts::without_interrupts;
 
 
 pub const WIDTH  : usize = 640;
@@ -19,10 +18,6 @@ pub const HEIGHT : usize = 480;
 
 
 pub use core::fmt::*;
-
-use lazy_static::lazy_static;
-use spin::Mutex;
-
 
 pub fn font_height() -> usize {
     vga::fonts::TEXT_8X8_FONT.character_height as usize

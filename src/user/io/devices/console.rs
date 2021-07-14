@@ -1,6 +1,5 @@
 use core::ops::Range;
 
-use alloc::boxed::Box;
 use spin::Mutex;
 use ::vga::{colors::TextModeColor, writers::{ScreenCharacter, Text80x25, TextWriter}};
 use x86_64::instructions::interrupts::without_interrupts;
@@ -9,7 +8,7 @@ use crate::{graphics::*, io::IoWriter};
 use lazy_static::lazy_static;
 
 pub const PRINTABLE_RANGE : Range<u8> = 0x20..0x7E;
-pub const UNPRINTABLE_BLOCK : u8 = 0xFE;
+pub const UNPRINTABLE_BLOCK : u8 = b'?';
 pub const BACKSPACE : u8 = 0x08;
 pub const DELETE : u8 = 0x7F;
 pub const NEW_LINE : u8 = b'\n';
@@ -51,6 +50,13 @@ impl Console {
         }
     }
 
+    pub fn write_byte_at_pos(&mut self, byte : u8, x : usize, y : usize) {
+        self.x = x;
+        self.y = y;
+
+        self.write_byte(byte);
+    }
+
     pub fn write_byte(&mut self, byte : u8) {
         match byte {
             0x20..=0x7E => {
@@ -67,7 +73,7 @@ impl Console {
     }
 
     fn erase_current(&mut self) {
-        self.writer.write_character(self.x, self.y, BLANK)
+        self.writer.write_character(self.x, self.y, ScreenCharacter::new(b' ', self.foreground))
     }
 
     fn new_line(&mut self) {
@@ -76,14 +82,13 @@ impl Console {
             unsafe {
                 self.shift_contents_up();
             }
-            
-
+            self.y = HEIGHT - 1;
         }
         self.carriage_return()
     }
 
     fn clear(&mut self) {
-        self.writer.fill_screen(BLANK);
+        self.writer.fill_screen(ScreenCharacter::new(b' ', self.foreground));
     }
     /// [WARNING] This function performs potentially risky raw pointer operations,
     /// it must ONLY be called by newline(), and must be acknowledged by an unsafe call.
@@ -96,6 +101,8 @@ impl Console {
                     *buffer.offset(above) = *buffer.offset(current_offset);
                 }
             }
+
+            self.clear_last_row();
     }
 
     fn carriage_return(&mut self) {
@@ -107,8 +114,8 @@ impl Console {
         self.y = 0;
     }
 
-    fn tab(&mut self) {
-        for i in 0..=TAB_STOP {
+    fn _tab(&mut self) {
+        for _ in 0..=TAB_STOP {
             self.write_byte(SPACE);
         }
     }
@@ -131,6 +138,21 @@ impl Console {
             self.write_byte(SPACE);
         }
     }
+
+    pub fn clear_last_row(&mut self) {
+        self.carriage_return();
+        for x in 0..WIDTH {
+            self.write_byte_at_pos(SPACE, x, 24);
+        }
+    }
+
+    pub fn set_foreground_color(&mut self, color : Color) {
+        self.foreground.set_foreground(color);
+    }
+
+    pub fn set_background_color(&mut self, color : Color) {
+        self.foreground.set_background(color);
+    }
 }
 
 pub fn _print(args : Arguments) {
@@ -142,6 +164,7 @@ pub fn _print(args : Arguments) {
 impl IoWriter<&str> for Console {
     fn write(&mut self, item : &str) {
         for byte in item.as_bytes() {
+            if *byte == 0  { return }; 
             if self.x >= WIDTH {self.write_byte(NEW_LINE); self.write_byte(CARRIAGE_RETURN);}
             self.write_byte(*byte);
         } 
@@ -168,4 +191,28 @@ pub fn home() {
     without_interrupts(|| {
         STDOUT.lock().home();
     })
+}
+
+pub fn foreground(color : Color) {
+    without_interrupts(|| {
+        STDOUT.lock().set_foreground_color(color);
+    })
+}
+
+pub fn background(color : Color) {
+    without_interrupts(|| {
+        STDOUT.lock().set_background_color(color);
+    })
+}
+
+pub fn clear_current_row() {
+    without_interrupts(|| {
+        STDOUT.lock().clear_current_row();
+    });
+}
+
+pub fn carriage_return() {
+    without_interrupts(|| {
+        STDOUT.lock().carriage_return();
+    });
 }

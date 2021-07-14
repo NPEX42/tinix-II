@@ -3,23 +3,39 @@ pub mod drivers;
 pub mod hardware;
 
 use bootloader::BootInfo;
-use x86_64::{VirtAddr, structures::paging::{FrameAllocator, Mapper, Size4KiB}};
-use arch::x64::mem::{init,allocator, heap::*, mapper::*};
+use x86_64::{VirtAddr};
+use arch::x64::mem::{init,allocator};
 
-use crate::{graphics, heap, input::{self, serial_println, set_text_color}, log, println, time, user};
+use crate::{
+    heap,
+    input::{
+        self,
+        serial_println
+    },
+    kernel::{
+        self, arch::disable_irq},
+        log, 
+        time
+    };
 
 pub fn boot(_boot_info : &'static BootInfo) {
 
-    ///* if cfg!(feature = "gfx480x640") */ { drivers::vga_dr::init().expect("Couldn't Initialize The VGA Driver...");}
-    
-    
+
+    crate::clear_console!();
+
+    kernel::drivers::file_systems::ustar::check_meta_block_size();
     //graphics::clear_screen(graphics::Color::Black);
     log!("Booting Tinix-core v{}\n", crate::version());
     init_component!(arch::x64::init, ());
     init_component!(hardware::pit::init, ());
     init_component!(hardware::pic::init, ());
+    disable_irq(1);
     set_interrupt!(0, crate::time::update);
-    set_interrupt!(4, crate::kernel::hardware::uart::on_serial_interrupt);
+    //set_interrupt!(4, crate::kernel::hardware::uart::on_serial_interrupt);
+    // for i in -1..10 {
+    //     let bad = 1 / i;
+    //     log!("{}", bad);
+    // }
     log!("[Boot/mem::allocator::init_heap] - Initialising {} MB [{} Frames]\n", (heap::HEAP_SIZE / 1024) / 1024, heap::HEAP_SIZE / 4096);
     let phys_mem_offset = VirtAddr::new(_boot_info.physical_memory_offset);
         let mut mapper = unsafe { init(phys_mem_offset)
@@ -36,12 +52,17 @@ pub fn boot(_boot_info : &'static BootInfo) {
             serial_println!("MEM [{:#016X}-{:#016X}] {:?}", start_addr, end_addr, region.region_type);
         }
 
-        serial_println!("MEM {:3} MB", memory_size >> 20);
+        log!("Detected {:3} MB of Memory\n", memory_size >> 20);
 
         unsafe {crate::sys::mem::TOTAL_MEMORY = memory_size}
 
      crate::kernel::allocator::init_heap(&mut mapper, &mut frame_allocator).expect("Couldn't Initialize Allocator...");
-     crate::println!("OK");
+    
+     init_component!(crate::kernel::hardware::ata::init, ());
+
+     log!("Disk 0 Is Present: {}\n",kernel::hardware::ata::drive_is_present(0));
+
+     init_component!(kernel::drivers::file_systems::ustar::init, ());
     
     init_component!(input::init, ());
 

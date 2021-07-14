@@ -22,9 +22,11 @@ pic8259 = "0.10.0"
 uart_16550 = "0.2.15"
 pc-keyboard = "*"
 linked_list_allocator = "*"
-bytes = {version = "1.0.1", default-features = false}
-fat32 = "0.2.0"
 
+
+[dependencies.serde]
+version = "1.0.126"
+default-features = false
 
 
 [dependencies.lazy_static]
@@ -36,15 +38,19 @@ libcore = ["liballoc"]
 liballoc = []
 gfx640x480 = []
 HEAP128 = []
-HEAP16 = []
 HEAP32 = []
+HEAP16 = []
+HEAP2 = []
 
-default = ["gfx640x480", "libcore", "HEAP16"]
+DOS = ["libcore", "HEAP2"]
+
+
+default = ["DOS"]
 
 [package.metadata.bootimage]
 run-args = [
     "-d", "cpu_reset",
-    "-m", "128",
+    "-m", "2048",
     "-serial","stdio"
 ]
 

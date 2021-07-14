@@ -6,8 +6,7 @@
     pub use vga::colors::Color16;
     pub use vga::writers::{Graphics640x480x16, GraphicsWriter};
     pub use vga::fonts;
-    use vga::vga::VGA;
-    use x86_64::instructions::port::Port;
+
 
     use crate::kernel::InitResult;
 
@@ -34,12 +33,12 @@
         let mode = GFX_MODE.lock();
         for (offset, chr) in text.chars().enumerate() {
                 if chr == '\n' || x * 8 + offset > 80 {y += 1};
-                mode.draw_character(x + offset * 8, y, chr, Color16::White);
+                mode.draw_character(x + offset * 8, y, chr, color);
         }
     }
 
     pub fn draw_chr(x : usize, y : usize, chr : char, color : Color16) {
-        GFX_MODE.lock().draw_character(x, y, chr, Color16::White);
+        GFX_MODE.lock().draw_character(x, y, chr, color);
     }
 
     pub fn draw_line(start : (isize, isize), end : (isize, isize), color : Color16) {

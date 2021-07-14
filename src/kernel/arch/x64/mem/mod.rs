@@ -1,11 +1,7 @@
-pub mod mapper;
 pub mod allocator;
 pub mod heap;
-
-use bootloader::BootInfo;
 use crate::kernel::InitResult;
-
-use x86_64::{VirtAddr, structures::paging::{OffsetPageTable, Page, PageTable}};
+use x86_64::{VirtAddr, structures::paging::{OffsetPageTable, PageTable}};
 use crate::input::{serial_print, serial_println};
 
 

@@ -41,3 +41,26 @@ macro_rules! reset_console {
     };
 }
 
+#[macro_export]
+macro_rules! foreground {
+    ($color : expr) => {
+        $crate::io::devices::console::foreground($color);
+    };
+}
+
+#[macro_export]
+macro_rules! background {
+    ($color : expr) => {
+        $crate::io::devices::console::background($color);
+    };
+}
+
+
+#[macro_export]
+macro_rules! clear_row {
+    () => {
+        $crate::io::devices::console::clear_current_row();
+        $crate::io::devices::console::carriage_return();
+    };
+}
+

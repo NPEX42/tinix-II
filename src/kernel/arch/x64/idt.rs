@@ -1,9 +1,8 @@
 use x86_64::instructions::port::Port;
 use x86_64::structures::idt::*;
-use x86_64::structures::gdt::*;
 use super::*;
 use crate::kernel::InitResult;
-use crate::kernel::hardware::pic::*;
+
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -15,7 +14,7 @@ pub fn init() -> InitResult<()> {
     Ok(())
 }
 
-fn default_handler(irq : u8) {
+fn default_handler(_irq : u8) {
     //crate::input::serial_println!("Fired IRQ #{}", irq);
 }
 
@@ -51,6 +50,14 @@ lazy_static! {
         idt[interrupt_index(5) as usize].set_handler_fn(irq5);
         idt[interrupt_index(6) as usize].set_handler_fn(irq6);
         idt[interrupt_index(7) as usize].set_handler_fn(irq7);
+        idt[interrupt_index(8) as usize].set_handler_fn(irq8);
+        idt[interrupt_index(9) as usize].set_handler_fn(irq9);
+        idt[interrupt_index(10) as usize].set_handler_fn(irq10);
+        idt[interrupt_index(11) as usize].set_handler_fn(irq11);
+        idt[interrupt_index(12) as usize].set_handler_fn(irq12);
+        idt[interrupt_index(13) as usize].set_handler_fn(irq13);
+        idt[interrupt_index(14) as usize].set_handler_fn(irq14);
+        idt[interrupt_index(15) as usize].set_handler_fn(irq15);
 
 
         idt[interrupt_index(128) as usize].set_handler_fn(swi_0);
@@ -133,12 +140,12 @@ extern "x86-interrupt" fn general_protection_fault(stack_frame: InterruptStackFr
     loop {crate::time::sleep_ticks(10)}
 }
 
-extern "x86-interrupt" fn nmi(stack_frame: InterruptStackFrame) {
+extern "x86-interrupt" fn nmi(_stack_frame: InterruptStackFrame) {
     crate::input::serial_println!("NMI Fired...");
 } 
 
 
-extern "x86-interrupt" fn swi_0(stack_frame: InterruptStackFrame) {
+extern "x86-interrupt" fn swi_0(_stack_frame: InterruptStackFrame) {
     crate::input::serial_println!("SWI0 Fired...");
 }
 

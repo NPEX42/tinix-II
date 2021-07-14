@@ -3,6 +3,7 @@ pub mod pit;
 pub mod uart;
 pub mod vga_hw;
 pub mod cmos;
+pub mod ata;
 
 
 pub use x86_64::instructions::port::*;

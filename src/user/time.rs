@@ -25,7 +25,7 @@ pub fn ticks() -> u128 {
     t
 }
 
-pub fn update(irq : u8) {
+pub fn update(_irq : u8) {
     without_interrupts(|| {
         COUNTER.lock().inc();
     });

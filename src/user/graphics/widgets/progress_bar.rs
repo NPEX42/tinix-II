@@ -50,4 +50,8 @@ impl ProgressBar {
     pub fn set_value(&mut self, value : usize) {
         self.fill = (value as f32 / self.max as f32) as f32
     }
+
+    pub fn min(&self) -> usize {
+        self.min
+    }
 }

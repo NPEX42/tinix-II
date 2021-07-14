@@ -4,7 +4,7 @@ use crate::{input::serial_read, io::{IoReader, IoWriter}, kernel::hardware::uart
 pub struct Serial;
 
 impl IoReader<u8> for Serial {
-    fn read(&self) -> Option<u8> {
+    fn read(&mut self) -> Option<u8> {
         serial_read()
     }
 }
