@@ -4,7 +4,7 @@
 ### In Progress
 - [x] - VGA Graphics
 - [x] - RAM File System
-- [ ] - ATA Integration
+- [x] - ATA Integration
 - [x] - Memory Alloctator
 - [x] - Keyboard Input
 - [ ] - Shell
@@ -13,17 +13,17 @@
 - [x] - PIT
 - [x] - Software Interrupts
 - [x] - Triple Fault Protection 
+- [ ] - Simple Filesystem
 ----
 ## Target Machine
 - Arch: x86_64
 - Gfx: 80x25 16-Color Text Mode
-- fs: Fat32
+- fs: TinixFS
 - Sound: SoundBlaster16 & PC-Speaker (MIDI)
 - Memory: 16MB - 128MB
 ----
 ## Technical Standards
 - POSIX - SystemV Compatiblity - [2016-09-30]
-- FAT32 - File System
 - TOML  - System Configuration
 - UTF-8 - Text Encoding
 - 
