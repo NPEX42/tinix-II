@@ -2,7 +2,7 @@ name: Kernel Dev Application Form
 description: Apply to be on the Kernel Team
 title: "Application Form - Kernel Team"
 body:
-- type: checkboxes
+- type: dropdown
   attributes:
     label: How much experience do you have with Rust, OS Development or Open Source Software?
     options:
@@ -11,3 +11,6 @@ body:
       - label: Little (< 1 Year)
       - label: A Fair Bit (< 2 Years)
       - label: Quite A Lot (3+ Years)
+- type: textarea
+  attributes: 
+    label: Provide An Example Of Your Work
