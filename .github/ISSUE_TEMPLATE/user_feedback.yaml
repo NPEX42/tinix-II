@@ -6,7 +6,7 @@ body:
   attributes:
     label: How much experience do you have with Rust, OS Development or Open Source Software?
     options:
-      - "None"
+      - "Non-existent"
       - "Very Little (< 6 Months)"
       - "Little (< 1 Year)"
       - "A Fair Bit (< 2 Years)"
