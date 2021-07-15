@@ -452,7 +452,7 @@ impl IndexMut<usize> for Block {
 
 pub fn check_sizes() {
     serial_print!("Integriy Checks - ");
-    assert!(size_of!(crate::kernel::drivers::file_systems::file_table::FileTable) <= 512);
+    assert!(size_of!(crate::kernel::drivers::file_systems::file_table::FileTable) <= 512, "FileTable Too Large! {}", size_of!(FileTable));
     assert!(size_of!(crate::kernel::drivers::file_systems::file_table::FileTableEntry) <= 32);
     assert!(size_of!(crate::kernel::drivers::file_systems::file_table::file::FileInfo) <= 512);
     assert!(size_of!(crate::kernel::drivers::file_systems::file_table::file::IndexNode) <= 512);
@@ -472,14 +472,6 @@ pub fn open_file(name : &str) -> usize {
         } else {
             0
         }
-    });
-    file_handle
-}
-
-pub fn file_info<'a>(index : usize) -> &'a FileInfo {
-    let mut file_handle : &FileInfo;
-    without_interrupts(move || {
-        file_handle = &ROOT.lock()[index].get_fileinfo();
     });
     file_handle
 }

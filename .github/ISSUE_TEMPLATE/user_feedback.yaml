@@ -1,0 +1,10 @@
+- type: checkboxes
+  attributes:
+    label: How much experience do you have with Rust, OS Development or Open Source Software?
+    options:
+      - label: None
+      - label: Very Little (< 6 Months)
+      - label: Little (< 1 Year)
+      - label: A Fair Bit (< 2 Years)
+      - label: Quite A Lot (3+ Years)
+      

@@ -92,7 +92,7 @@ impl FileTable {
         None
     }
 
-    pub fn create(&mut self, name : &str) -> Option<&mut FileTableEntry> {
+    pub fn create(&mut self, name : &str) -> Option<FileTableEntry> {
         let result = if let Some(mut entry) = self.get_first_mut_empty_ref() {
             entry.1.set_filetype(FileType::File);
             entry.1.set_filename(name);
@@ -104,13 +104,13 @@ impl FileTable {
         result
     }
 
-    fn get_first_mut_empty_ref(&mut self) -> Option<(usize, &mut FileTableEntry)> {
-        for (index,&mut entry) in &mut self.entries.iter_mut().enumerate() {
+    fn get_first_mut_empty_ref(&mut self) -> Option<(usize, FileTableEntry)> {
+        for (index, entry) in self.entries.iter().enumerate() {
             if entry.filetype() == FileType::Null {
-                return Some((index, &mut entry));
+                return Some((index, *entry));
             };
         }
-        return None;
+        None
     }
 
     pub fn update_on_disk(&self) {
@@ -281,15 +281,16 @@ impl IndexMut<usize> for FileTable {
     }
 }
 
+const SMALL_STR_LEN : usize = 8;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SmallString {
-    data : [u8; 16]
+    data : [u8; SMALL_STR_LEN]
 }
 
 impl SmallString {
     pub fn from_str(text : &str) -> SmallString {
-        assert!(text.len() <= 16);
-        let mut buffer : [u8; 16] = [0;16];
+        assert!(text.len() <= SMALL_STR_LEN);
+        let mut buffer : [u8; SMALL_STR_LEN] = [0;SMALL_STR_LEN];
         for (index, byte) in text.bytes().enumerate() {
             buffer[index] = byte;
         }

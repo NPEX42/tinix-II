@@ -5,6 +5,7 @@ pub mod input;
 // pub mod fs;
 pub mod sys;
 pub mod io;
+pub mod storage;
 
 
 use core::{{fmt::Pointer}, ops::{Index, IndexMut}};
