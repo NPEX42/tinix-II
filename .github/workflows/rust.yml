@@ -1,20 +1,27 @@
 name: Rust
-
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
+on: [push]
 env:
   CARGO_TERM_COLOR: always
-
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - name: Build
-      run: cargo build --verbose --target x86_64.json
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        default: true
+        override: true
+    - run: sudo apt-get -qqy update
+    - run: sudo apt-get -qqy install qemu-system-x86
+    - run: rustup component add rust-src
+    - run: rustup component add llvm-tools-preview
+    - run: cargo install bootimage
+    - run: cargo test
