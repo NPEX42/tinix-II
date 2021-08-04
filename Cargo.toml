@@ -52,7 +52,7 @@ run-args = [
     "-d", "cpu_reset",
     "-m", "2048",
     "-serial","stdio",
-    "-hdb", "storage.bin"
+    #"-hdb", "storage.img"
 ]
 
 test-args = [

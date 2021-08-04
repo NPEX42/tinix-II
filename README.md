@@ -13,7 +13,7 @@
 - [x] - PIT
 - [x] - Software Interrupts
 - [x] - Triple Fault Protection 
-- [ ] - Simple Filesystem
+- [x] - Simple Filesystem
 ----
 ## Target Machine
 - Arch: x86_64

@@ -5,4 +5,5 @@ Cargo.lock
 *.tfs
 *.dump
 *.bin
-storage.bin
+
+
