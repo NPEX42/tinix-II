@@ -321,14 +321,26 @@ pub fn indentify_drive(bus : u8, drive : u8) -> Option<(u8, u8, String, String, 
 
 pub fn read(bus: u8, drive: u8, block: BlockIndex, buf: &mut Sector) {
     let mut buses = BUSES.lock();
-    log!("Reading Block 0x{:08X}\n", block);
+    //log!("Reading Block 0x{:08X}\n", block);
     buses[bus as usize].read(drive, block, buf.data_mut());
+}
+
+pub fn read_raw(bus: u8, drive: u8, block: BlockIndex, buf: &mut [u8]) {
+    let mut buses = BUSES.lock();
+    //log!("Reading Block 0x{:08X}\n", block);
+    buses[bus as usize].read(drive, block, buf);
 }
 
 pub fn write(bus: u8, drive: u8, block: BlockIndex, buf : &Sector) {
     let mut buses = BUSES.lock();
-    log!("Writing Block 0x{:08X}\n", block);
+    //log!("Writing Block 0x{:08X}\n", block);
     buses[bus as usize].write(drive, block, &buf.data());
+}
+
+pub fn write_raw(bus: u8, drive: u8, block: BlockIndex, buf : &[u8]) {
+    let mut buses = BUSES.lock();
+    //log!("Writing Block 0x{:08X}\n", block);
+    buses[bus as usize].write(drive, block, &buf);
 }
 
 pub fn write_sectors(bus: u8, drive: u8, start_block: BlockIndex, sectors : &SectorList) {

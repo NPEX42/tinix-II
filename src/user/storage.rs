@@ -7,7 +7,7 @@ pub fn get_root(disk : DiskID) -> FileTable {
 }
 
 impl FileTable {
-    pub fn open_file(&mut self, name : &str, mut entry_buffer : &mut FileTableEntry) -> &mut Option<FileTableEntry> {
-        entry_buffer = self.search(name)
+    pub fn open_file(&mut self, name : &str, mut entry_buffer : &mut FileTableEntry) {
+        *entry_buffer = FileTableEntry::empty();
     } 
 }

@@ -1,6 +1,7 @@
 pub mod arch;
 pub mod drivers;
 pub mod hardware;
+pub mod fs;
 
 use bootloader::BootInfo;
 use x86_64::{VirtAddr};

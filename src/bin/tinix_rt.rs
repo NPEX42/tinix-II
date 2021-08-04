@@ -6,14 +6,13 @@
 use bootloader::BootInfo;
 use tinix::input::serial_println;
 use tinix::kernel::drivers::file_systems::{Block, File, open_file};
-use tinix::{Arguments, entry_point, size_of};
+use tinix::{Arguments, entry_point, kernel, println, size_of};
 use tinix::{ConstPointer, custom_boot, kernel::drivers::file_systems::{file_table::{FileTable}}, log};
 custom_boot!(main);
 
 pub fn main(_args : &'static BootInfo)  {
-    
-
-    log!("Yeet, Yeet, Complete!\n");
+    kernel::fs::init();
+    kernel::fs::format(0,1);
 }
 
 #[cfg(test)]

@@ -14,7 +14,7 @@ path = "src/lib.rs"
 [dependencies]
 bootloader = {version = "0.9.8", features = ["map_physical_memory"]}
 x86_64 = "0.14.3"
-bit_field = "0.10.1"
+bit_field = "0.10.0"
 spin = {version = "0.9.0"}
 volatile = "*"
 vga = "0.2.7"
@@ -51,7 +51,8 @@ default = ["DOS"]
 run-args = [
     "-d", "cpu_reset",
     "-m", "2048",
-    "-serial","stdio"
+    "-serial","stdio",
+    "-hdb", "storage.bin"
 ]
 
 test-args = [
